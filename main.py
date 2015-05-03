@@ -1,9 +1,14 @@
-import json, random, requests, time
+import json, random, requests, time, re, pytumblr
 
 
 OPUS_API_BASE_URL = 'http://pds-rings-tools.seti.org/opus/api/'
 PLANET_ID_TABLE = {'MER': 'Mercury', 'VEN': 'Venus', 'EAR': 'Earth', 'MAR': 'Mars', 'JUP': 'Jupiter', 'SAT': 'Saturn', 'URA': 'Uranus', 'PLU':'Pluto'}
-CRAFT_LIST = ['Cassini', 'Hubble', 'Galileo', 'Voyager', 'New Horizons']
+CRAFT_LIST = [{'craft': 'Cassini', 'pages':1}, 
+			  {'craft':'Hubble', 'pages':1}, 
+			  {'craft':'Galileo', 'pages':1}, 
+			  {'craft':'Voyager', 'pages':1},
+			  {'craft':'New Horizons', 'pages':1}
+			 ]
 
 
 def getImagesList(mission, page):
@@ -42,6 +47,9 @@ def writePostText(missionData, spacecraft):
 	#Mission Name, Target Photographed, Date, Instrument, OPUS link
 
 	source = 'http://pds-rings-tools.seti.org/opus#/ringobsid='+missionData['ring_obs_id']+'&detail='+missionData['ring_obs_id']+'&view=detail'
+	print missionData['ring_obs_id']
+	if missionData['target_name'] is None:
+		return None
 
 	post = 'A photo of <b>'+missionData['target_name'].title()+'</b>'
 	if missionData['target_class'] != 'PLANET':
@@ -62,7 +70,7 @@ def writePostText(missionData, spacecraft):
 	post+= '<br />\n'
 	post += 'Took by <b>'+spacecraft+'</b> with '+missionData['instrument_id']
 
-	if missionData['time1'] is not None:
+	if missionData['time1'] is not None and missionData['time1'] != '00:00:00':
 		#print("time is not None, time is "+missionData['time1'])
 		date = time.strptime(missionData['time1'].replace("-", ""), "%Y%m%dT%H:%M:%S")
 		post += ' on ' + time.strftime("%B %d, %Y at %H:%M:%S", date)
@@ -85,18 +93,19 @@ def postToTumblr(imageURL, text, spacecraft):
 				    '<oauth_secret>',
 					)
 
-	tumblrClient.create_photo('spaceholiday',
+	tumblrClient.create_photo('hellospacebot',
 							   state="published", 
 							   tags=["space", "spaceholiday", spacecraft], 
 							   source=imageURL, 
 							   caption=text['post'], 
-							   tweet=text['tweet'], 
+							   tweet=text['tweet']+' [URL]', 
 							   link=text['source']
 							  )
 
+	print "Published to Tumblr"
 
 
-	print()
+	
 
 def striphtml(data):
     p = re.compile(r'<.*?>')
@@ -107,18 +116,18 @@ def striphtml(data):
 #master process should randomize a mission choice and page choice.
 #should check against "pages done" list at some point
 
-craft = 'New Horizons'
-page = 1
+choosenCraft = random.choice(CRAFT_LIST)
 
-photos = getImagesList(craft, page)
+photos = getImagesList(choosenCraft['craft'], random.randint(1, choosenCraft['pages']))
 imgObj = selectRandImage(photos)
 missionDataObj = getMissionData(imgObj['ring_obs_id'])
-text = writePostText(missionDataObj, craft)
+text = writePostText(missionDataObj, choosenCraft['craft'])
 #print imgObj
 #print missionDataObj
 print imgObj['url']
 print  text
 
-#postToTumblr(imgObj['url'], text, craft)
+if text is not None:
+	postToTumblr(imgObj['url'], text, choosenCraft['craft'])
 
 
