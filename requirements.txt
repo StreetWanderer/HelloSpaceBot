@@ -1,0 +1,5 @@
+httplib2==0.9.1
+httpretty==0.8.8
+oauth2==1.5.211
+PyTumblr==0.0.6
+requests==2.6.2
