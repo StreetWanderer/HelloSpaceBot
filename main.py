@@ -72,8 +72,18 @@ def writePostText(missionData, spacecraft):
 
 	if missionData['time1'] is not None and missionData['time1'] != '00:00:00':
 		#print("time is not None, time is "+missionData['time1'])
-		date = time.strptime(missionData['time1'].replace("-", ""), "%Y%m%dT%H:%M:%S")
-		post += ' on ' + time.strftime("%B %d, %Y at %H:%M:%S", date)
+		missionDate = missionData['time1'].replace("-", "").split(".")[0]
+		try:
+			date = time.strptime(missionDate, "%Y%m%dT%H:%M:%S")
+		except ValueError:
+			try:
+				date = time.strptime(missionDate, "%Y%jT%H:%M:%S")
+			except ValueError:
+				print 'Time is invalid: '+missionData['time1']
+			else:
+				post += ' on ' + time.strftime("%B %d, %Y at %H:%M:%S", date)
+		else:
+			post += ' on ' + time.strftime("%B %d, %Y at %H:%M:%S", date)
 
 	post += '.<br />\n'
 	post += '<br />\n'
