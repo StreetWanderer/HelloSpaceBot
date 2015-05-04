@@ -1,21 +1,14 @@
 import json, random, requests, time, re, pytumblr
+import config
 
 
-OPUS_API_BASE_URL = 'http://pds-rings-tools.seti.org/opus/api/'
-PLANET_ID_TABLE = {'MER': 'Mercury', 'VEN': 'Venus', 'EAR': 'Earth', 'MAR': 'Mars', 'JUP': 'Jupiter', 'SAT': 'Saturn', 'URA': 'Uranus', 'PLU':'Pluto'}
-CRAFT_LIST = [{'craft': 'Cassini', 'pages':1}, 
-			  {'craft':'Hubble', 'pages':1}, 
-			  {'craft':'Galileo', 'pages':1}, 
-			  {'craft':'Voyager', 'pages':1},
-			  {'craft':'New Horizons', 'pages':1}
-			 ]
 
 
 def getImagesList(mission, page):
 	#Grab the list of images from OPUS and return it as a dictionnary
 	
 	payload = {'missionid': mission.replace("+", " "), 'page': page}
-	imagesList = requests.get(OPUS_API_BASE_URL + 'images/full.json', params=payload)
+	imagesList = requests.get(config.OPUS_API_BASE_URL + 'images/full.json', params=payload)
 	parsedImages = json.loads(imagesList.text)
 	
 	return parsedImages;
@@ -35,7 +28,7 @@ def selectRandImage(images):
 
 def getMissionData(ring_obs_id):
 	#Retrieve mission data from OPUS
-	missionRawData = requests.get(OPUS_API_BASE_URL + 'metadata/'+ring_obs_id+'.json')
+	missionRawData = requests.get(config.OPUS_API_BASE_URL + 'metadata/'+ring_obs_id+'.json')
 	missionData = json.loads(missionRawData.text)
 
 	return missionData['General Constraints']
@@ -60,9 +53,9 @@ def writePostText(missionData, spacecraft):
 		post += missionData['target_class'].lower()
 
 		if missionData['target_class'] == 'MOON':
-			post += ' of <b>'+PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
+			post += ' of <b>'+coonfig.PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
 		else:
-			post += ' near <b>'+PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
+			post += ' near <b>'+config.PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
 
 
 	post += '.'
@@ -97,10 +90,10 @@ def writePostText(missionData, spacecraft):
 def postToTumblr(imageURL, text, spacecraft):
 	#create the post on Tumblr.
 	tumblrClient = pytumblr.TumblrRestClient(
-				    '<consumer_key>',
-				    '<consumer_secret>',
-				    '<oauth_token>',
-				    '<oauth_secret>',
+				    config.CONSUMER_KEY,
+				    config.CONSUMER_SECRET,
+				    config.OAUTH_TOKEN,
+				    config.OAUTH_SECRET,
 					)
 
 	tumblrClient.create_photo('hellospacebot',
@@ -126,7 +119,7 @@ def striphtml(data):
 #master process should randomize a mission choice and page choice.
 #should check against "pages done" list at some point
 
-choosenCraft = random.choice(CRAFT_LIST)
+choosenCraft = random.choice(config.CRAFT_LIST)
 
 photos = getImagesList(choosenCraft['craft'], random.randint(1, choosenCraft['pages']))
 imgObj = selectRandImage(photos)
@@ -134,10 +127,12 @@ missionDataObj = getMissionData(imgObj['ring_obs_id'])
 text = writePostText(missionDataObj, choosenCraft['craft'])
 #print imgObj
 #print missionDataObj
-print imgObj['url']
-print  text
 
 if text is not None:
+	print imgObj['url']
+	print striphtml(text['post'])
 	postToTumblr(imgObj['url'], text, choosenCraft['craft'])
+else:
+	print 'Error while generating post. Skipping.'
 
 
