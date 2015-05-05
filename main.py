@@ -2,8 +2,8 @@ import time
 import core
 
 
-frequencyInSec = 60.0 * 1.0 #every minute
-#frequencyInSec = 60.0 * 30.0 #every 30 minutes
+#frequencyInSec = 60.0 * 1.0 #every minute
+frequencyInSec = 60.0 * 30.0 #every 30 minutes
 postToTumblr = True
 
 
