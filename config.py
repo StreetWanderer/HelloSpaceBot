@@ -10,12 +10,13 @@ PLANET_ID_TABLE = {'MER': 'Mercury',
 				   'PLU':'Pluto'
 				   }
 
-CRAFT_LIST = [{'craft': 'Cassini', 'pages':1}, 
-			  {'craft':'Hubble', 'pages':1}, 
-			  {'craft':'Galileo', 'pages':1}, 
-			  {'craft':'Voyager', 'pages':1},
-			  {'craft':'New Horizons', 'pages':1}
-			 ]
+CRAFT_LIST = [
+			  	('Cassini',10809), 
+			  	('Hubble',98), 
+			  	('Galileo',39), 
+			  	('Voyager',767),
+			  	('New Horizons',12)
+			  ]
 
 CONSUMER_KEY = ''
 CONSUMER_SECRET = ''
