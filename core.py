@@ -52,10 +52,11 @@ def writePostText(missionData, spacecraft):
 			post += ', a '
 		post += missionData['target_class'].lower()
 
-		if missionData['target_class'] == 'MOON':
-			post += ' of <b>'+config.PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
-		else:
-			post += ' near <b>'+config.PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
+		if missionData['planet_id'] is not None:
+			if missionData['target_class'] == 'MOON':
+				post += ' of <b>'+config.PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
+			else:
+				post += ' near <b>'+config.PLANET_ID_TABLE[missionData['planet_id']]+'</b>'
 
 
 	post += '.'
@@ -116,18 +117,22 @@ def main(post):
 
 	photos = getImagesList(choosenCraft['craft'], random.randint(1, choosenCraft['pages']))
 	imgObj = selectRandImage(photos)
-	missionDataObj = getMissionData(imgObj['ring_obs_id'])
-	text = writePostText(missionDataObj, choosenCraft['craft'])
-	#print imgObj
-	#print missionDataObj
+	text = None
 
-	if text is not None and post is True:
+	if 'not_found' not in imgObj['url'] or 'http' not in imgObj['url']:
+		missionDataObj = getMissionData(imgObj['ring_obs_id'])
+		text = writePostText(missionDataObj, choosenCraft['craft'])
+	
+
+	if post is False and text is not None:
+		print imgObj['ring_obs_id']+" -> "+imgObj['url']
+		print utils.striphtml(text['post'])
+	elif text is not None:
 		print imgObj['url']
 		print utils.striphtml(text['post'])
 		postToTumblr(imgObj['url'], text, choosenCraft['craft'])
-	elif post is True:
-		print 'Error while generating post. Skipping.'
 	else:
-		print imgObj['ring_obs_id']+" -> "+imgObj['url']
-		print utils.striphtml(text['post'])
-	print '\n'
+		print 'Error while generating post for'+imgObj['ring_obs_id']+'.\nSkipping.'
+	
+		
+	print '\n----------------------\n'
