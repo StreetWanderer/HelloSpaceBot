@@ -62,7 +62,7 @@ def writePostText(missionData, spacecraft):
 	post += '.'
 	tweet = utils.striphtml(post)
 	post+= '<br />\n'
-	post += 'Took by <b>'+spacecraft+'</b> with '+missionData['instrument_id']
+	post += 'Taken by <b>'+spacecraft+'</b> with '+missionData['instrument_id']
 
 	if missionData['time1'] is not None and missionData['time1'] != '00:00:00':
 		#print("time is not None, time is "+missionData['time1'])
