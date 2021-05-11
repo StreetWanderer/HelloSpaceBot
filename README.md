@@ -1,3 +1,8 @@
+MOVED
+====
+This repository is now hosted on GitLab. This version is archived and will be deleted in the future
+https://gitlab.com/streetwanderer/HelloSpaceBot
+
 Hello Space Bot
 ==============
 A bot that extracts random photos from the OPUS database and post them to Tumblr with a description of what the picture is about.
